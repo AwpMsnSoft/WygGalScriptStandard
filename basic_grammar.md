@@ -103,7 +103,7 @@
 
  通过+运算连接多个文本使用，例如 $DOUBLEQUOTE+"abc"+$DOUBLEQUOTE 
 ```
-- 修改文本保留常量是未定义行为。
+- 修改文本保留常量是关键错误。
 
 ## 自动类型转换:
 - 自动类型转换是一种临时（Temporary）转换，共3种，按照优先级顺序，依次为： 
@@ -124,7 +124,7 @@
 
 ## 基本运算符：
 - 基本运算符是用于对数据进行运算获得结果数据的符号，包括正负运算符（+、-）
-算术运算符（ + 、- 、* 、\/ 、\ 、\% ）、布尔运算符（ \& 、\| 、\~或! 、\^ ）、比较运算符（ > 、\< 、 >\= 、\<\= 、 \= 或 \=\=、 <> 或 != ）、文本连接运算符（ + ）；
+算术运算符（ + 、- 、* 、\/ 、\ 、\%、\^ ）、布尔运算符（ \& 、\| 、\~或! ）、比较运算符（ > 、\< 、 >\= 、\<\= 、 \= 或 \=\=、 <> 或 != ）、文本连接运算符（ + ）；
 - 不包括位运算符等其他运算符，使用其他运算符为未定义行为。
 
 ### 运算符功能表:
@@ -139,9 +139,9 @@
 |A/B|Number|Number|Number|Division|除法|
 |A\B|Number|Number|Number|the Integer part of (A/B)|除法取整|
 |A\%B|Number|Number|Number|A-(B*(B\A))|余数/取模|
+|A\^B|Number|Number|Number|Power|乘方|
 |A\&B|Boolean|Boolean|Boolean|And|与|
 |A\|B|Boolean|Boolean|Boolean|Or|或|
-|A\^B|Boolean|Boolean|Boolean|Xor|异或|
 |~A<br>!A|Boolean||Boolean|Not|非|
 |A>B|Number|Number|Boolean|More than|大于|
 |A>\=B|Number|Number|Boolean|More than or equals|大于等于|
@@ -158,7 +158,7 @@
 
 - 文本比较不区分大小写仅对英文生效，对其他语种是未定义行为；
 - 使用基本运算符，形式不符合上表是关键错误；
-- 使用基本运算符，若A或B的类型不符合上表，则会发生自动类型转换。发生不允许的自动类型转换为关键错误。
+- 使用基本运算符，若A或B的类型不符合上表，则尝试进行自动类型转换。发生不允许的自动类型转换为关键错误。
 ### 操作数含有Default类型的基本运算符功能表：
 |形式（运算符以空格分隔并列）|A的类型|B的类型|结果类型|结果|中文说明|
 |:----:|:----:|:----:|:----:|:----:|:----:|
@@ -167,15 +167,15 @@
 |A= ==B|Default|Default|Boolean|True|Default相等|
 |A!= <>B|Default|Default|Boolean|False|Default非不相等|
 |A+B|Text|Default|Text|A|Default无作用|
-|A& \| ^B|Boolean|Default|Boolean|A|Default无作用|
-|A+ - * /B|Number|Default|Number|A|Default无作用|
+|A& \|B|Boolean|Default|Boolean|A|Default无作用|
+|A+ - * / ^B|Number|Default|Number|A|Default无作用|
 |A\B|Number|Default|Number|the Integer part of A|Default作为1|
 |A%B|Number|Default|Number|the Fractional part of A|Default作为1|
 |A+B|Default|Text|Text|B|Default无作用|
-|A& \| ^B|Default|Boolean|Boolean|B|Default无作用|
+|A& \|B|Default|Boolean|Boolean|B|Default无作用|
 |A+ *B|Default|Number|Number|B|Default无作用|
 |A-B|Default|Number|Number|-B|Default无作用|
-|A/ \ %B|Default|Number|Number|0|Default作为0|
+|A/ \ % ^B|Default|Number|Number|0|Default作为0|
 |A> >= < <= = == != <>B|Number|Default|Boolean|B is replaced by 0|Default作为0|
 |A> >= < <= = == != <>B|Default|Number|Boolean|A is replaced by 0|Default作为0|
 |A= == != <>B|Boolean|Default|Boolean|B is replaced by False|Default作为False|
@@ -185,19 +185,18 @@
 - =和<>不区分英文大小写，对其他语种是未定义行为，==和!=区分英文大小写；
 - 上表可总结为：Default类型总是尽可能小地影响所参与运算的结果；
 - 使用基本运算符且操作数中含有Default类型，若A或B的类型不符合上表，则会发生自动类型转换。发生不允许的自动类型转换为未定义行为。
+ 
 
-### 运算优先级表： 
-
-#关键字
+#行的构成
 ##指令:
 - 指令是表示执行一段过程的关键字，以.开头，形如：.command
   
 ##变量:
-- 变量是用于存储一个数据单元的标识符，以\$开头，形如：$var ；
+- 变量是用于存储和指代一个数据单元的标识符，以\$开头，形如：$var ；
 - 所有变量均为全局变量。
 
 ##数组变量:
-- 数组变量是用于存储多个数据单元的标识符，以[\]开头，形如：[\]arr ；
+- 数组变量是用于存储多个数据单元的标识符，以[]开头，形如：[]arr ；
 - 数组至少含有一个元素；
 - 数组的长度是可变的；
 - 数组的下标范围为 **0** 到 **数组长度-1** ；
@@ -206,20 +205,127 @@
 - 允许同一个数组的不同元素类具有不同类型；
 - 定义多维数组，或者使数组成为另一个数组的元素，是未定义行为；
 - 所有数组变量均为全局数组变量。
+ 
+#### 数组的运算规则：   
+- 对数组使用基本运算符相当于对数组的每个元素使用基本运算符，分为四种情况：   
+    ```
+    ##单目运算符，操作数为数组，例如：
+        ![]arr
+        ##对[]arr的每个元素作非运算，结果为与[]arr长度相同的数组，
+        ##若[]arr长度为m，则结果为 ![0]arr,![1]arr,...,![m-1]arr 
+
+    ##双目运算符，操作数均为数组，例如：
+        []arr+[]brr
+        ##将[]arr的每个元素和[]brr对应位置的元素相加，结果为数组，
+        ##若[]arr长度为m，[]brr长度为n，则结果的长度为max(m,n)；
+        ##在计算之前，[]arr和[]brr中较短的一个，长度被临时追加到max(m,n)，追加的元素值为Default，以避免数组越界，
+        ##结果为数组 [0]arr+[0]brr,[1]arr+[1]brr,...,[max(m,n)]arr+[max(m,n)]brr 
+    
+    ##双目运算符，左操作数为数组，右操作数为单一数据，例如：
+        []arr+expression
+        []arr+$var
+        ##以[]arr+$var为例：
+        ##将[]arr的每个元素与$var相加，结果为与[]arr长度相同的数组，
+        ##若[]arr长度为m，则结果为 [0]arr+$var,[1]arr+$var,...,[m-1]arr+$var
+
+    ##双目运算符，左操作数为单一数据，右操作数为数组，例如：
+        expression+[]arr
+        $var+[]arr
+        ##以$var[]+arr为例：
+        ##将$var与[]arr的每个元素相加，结果为单一数据，
+        ##若[]arr长度为m，则结果为 $var+[0]+arr[1]+...+[m-1]arr
+    ```
+   
+
+##常量：
+- 常量是恒定不变的数据单元，包括默认常量、布尔常量、数常量、文本常量，例如Default、True、123.4、"常量"。
 
 ##常量标识符：
-- 常量标识符表示不可变的数据单元，在形式上具有与变量完全相同的表示方法，例如：\$CONST、[]CONSTARR、[0]CONSTARR ；
-- 对常量标识符的写操作是未定义行为；
+- 常量标识符用于指代表示常量，在形式上具有与变量完全相同的表示方法，例如：\$CONST、[]CONSTARR、[0]CONSTARR ；文本保留常量是一种常量标识符；
+- 修改常量标识符的值属于关键错误，但允许取消常量标识符的定义；
 - 所有常量标识符均为全局常量标识符。
 
 
-## 表达式： 
-- todo 待补充：
-- 基本运算表达式，复杂运算表达式，数组表达式
-- 包括单个数据和单个数据，数组和数组，数组和单个数据，单个数据和数组之间的运算
+##定义和取消定义：
+- 变量、数组、常量标识符可定义和取消定义，通过指令进行；
+- 访问未定义的变量、数组、常量标识符属于关键错误；
+- 一些变量、数组、常量标识符是保留的，且已被定义，重新定义或取消定义视为未定义行为。
+ 
+## 表达式：
+- 基本运算符：已在前面说明；
+- 操作数：使用基本运算符参与计算的数据，可以是变量、常量或数组；
+- 表达式中的基本运算符和操作数形式上不匹配为关键错误；             
+- 基本运算表达式：最简单的运算表达式，仅由一个运算符及其操作数构成，例如 1+2 、\$vara+\$varb ；
+- 复杂运算表达式：由多个运算符及其操作数，以及圆括号构成，例如 3\*3+4\*4 、 \$vara\*(\$varb+[]arr) ； 
+- 圆括号 () ：一对半角圆括号内的表达式作为一个整体来计算，左右圆括号不匹配为关键错误；
+- 数组表达式：由多个以半角逗号分隔的表达式构成，用于表示一个数组，例如： 1920,1080 、\$width+\$xleft,\$height+\$ytop 。
 
-## 非注释行：
-- 普通执行行 
+## 表达式处理优先级：    
+- 和数学一样，表达式中的运算等具有优先级，且级数更为丰富，按照如下顺序排列：
+  |类型|符号|说明|
+  |:-:|:-:|:-:|
+  |圆括号|( )|圆括号内的表达式作为整体计算|
+  |单目运算|+ - ! ~|需要操作数却出现运算符时视为单目运算符|
+  |乘方|^|数学上的三级运算|
+  |乘除法和取模运算|* / \\ %|数学上的二级运算|
+  |文本连接和加减法|+ -|文本连接、数学上的一级运算|
+  |比较| >  <  >=  <=  =  ==  <>  !=| 比较的优先级低于文本连接和数学运算|
+  |与|&|比较完再进行与运算|
+  |或|\||先与后或|
+  |数组表达式分隔符|,|将每个计算结果作为元素排列成数组|
+- 如运算优先级相同，则按照从左往右的顺序计算。
+- 在赋值中，若表达式中出现空格和Tab，则这些空格和Tab被忽略；但在其他行中，空格和Tab作为分隔符使用，单独的表达式中不允许出现。
+
+## 赋值： 
+
+- 以变量或数组变量开头的行为赋值行，赋值符号为第一个等号 = ，可相邻若干个空格和Tab，或者与左右内容紧密相连；
+- 变量赋值
+
+  ```
+  ##将等号右边表达式（expression）的计算结果赋值给左边的变量（$var）：
+  $var = expression 
+
+  ##数组单个元素赋值行，将表达式（expression）的值赋值给数组中下标为i的元素（[i]arr）：
+  [i]arr = expression
+  ```
+- 数组赋值
+  ```
+  ##将n个表达式组合成具有n个元素的数组，赋值给左边的数组变量（[]arr）：
+      ##数组可以只拥有一个元素（expression_0），但不可以没有元素
+      []arr = expression_0
+
+      ##有多少个表达式，就有多少个数组元素，多个表达式之间使用逗号分隔
+      []arr = expression_0,expression_1
+      []arr = expression_0,...,expression_n_1
+
+  ##创建右边数组（[]brr）的副本，赋值给左边的数组变量（[]arr）
+      []arr = []brr
+  ```
+
+- 文本连接赋值
+  - 文本连接赋值符号不是等号，而是 += 
+  ```
+  ##将+=左边变量与""连接转换为文本，右边表达式的值，再将文本与表达式连接形成新的文本存入变量中：
+      $var += expression 
+      ##相当于 $var = var+""+expression 
+
+      $var += arr[] 
+      ##相当于 $var = var+""+arr[] 
+
+      [i]arr += expression
+      ##相当于 [i]arr = [i]arr+""+expression  
+      
+      []arr += expression
+      ##相当于 []arr = []arr+""+expression  
+
+      []arr += expression_0,...,expression_n_1
+      ##相当于 []arr = []arr+""+(expression_0,...,expression_n_1)
+
+      []arr += []brr
+      ##相当于 []arr = []arr+""+[]brr
+  ```
+
+## 执行指令： 
   ```
   ##执行无参数的指令:
   .command
@@ -227,104 +333,33 @@
   ##执行有参数的指令，分隔符使用若干个空格或Tab，用法举例:
   .command  parameter_0
   .command  parameter_0  parameter_1
-  .command  parameter_0  ...  parameter_n-1
-
-  ##传递数组，批量执行有参数的指令（试验性功能，须指令支持批量执行），分隔符使用若干个空格或Tab，用法举例:
-  
-      .[]command  ...  
-      .[][]command  ...
-
-      #:
-          对[]param_arr_0中的每个元素依次执行
-          .command [i]param_arr_0 
-      :#
-      .[]command  []param_arr_0
-
-
-      #:
-          对[]param_arr_0中的每个元素依次执行
-          .command [i]param_arr_0  parameter_1   
-      :#
-      .[]command  []param_arr_0  parameter_1  
-
-
-      #:
-          取得[]param_arr_0、[]param_arr_1的最大长度，
-          并将不足该长度的数组使用Default扩充使数组长度相等，
-          对[]param_arr_0、[]param_arr_1中的每组元素依次执行
-          .command [i]param_arr_0  [i]param_arr_1
-      :#
-      .[]command  []param_arr_0  []param_arr_1 
- 
-
-      #:
-          取得[]param_arr_0、[]param_arr_1的最大长度，
-          并将不足该长度的数组使用Default扩充使数组长度相等，
-          对[]param_arr_0、[]param_arr_1中的每组元素依次执行
-          .command [i]param_arr_0  [i]param_arr_1  parameter_2  
-      :#
-      .[]command []param_arr_0  []param_arr_1  parameter_2
-
-
-      #:
-          对[]param_arr_0、[]param_arr_1中的每个元素按照i在外部，j在内部的i、j二重循环，依次执行
-          .command [i]param_arr_0  [j]param_arr_1
-      :#
-      .[][]command  []param_arr_0  []param_arr_1 
+  .command  parameter_0  ...  parameter_n_1
   ```
+#### 指令的重载：一组指令具有相同的指令名称和不同的参数列表，具体执行哪一个指令取决于传入的参数。
 
 
-- 普通赋值行
+## 预处理：
+- 预处理行表示解释器必须在执行脚本之前，预先处理该行，通常以#开头；
+- 预处理行仅在当前上下文，即当前wgs文件中有效。
   ```
-  ##变量赋值行，将第一个=右边表达式计算结果赋值给左边的变量，关键字允许用若干个空格或Tab分隔：
-  $var = expression 
-
-  ##数组单个元素赋值行，将表达式的值赋值给数组中下标为i的元素：
-  [i]arr = expression
-  ```
-- 数组赋值行
-  ```
-  ##将n个表达式组合成具有n个元素的数组，赋值给第一个=左边的数组变量：
-      ##数组可以只拥有一个元素，但不可以没有元素
-      []arr = expression_0
-
-      ##表达式有多少个，数组就有多少个元素，多个表达式之间使用逗号分隔
-      []arr = expression_0,expression_1
-      []arr = expression_0,...,expression_n-1
-  ```
-
-- 文本连接赋值行
-  ```
-  ##将+=左边变量类型转换为文本，计算+=右边表达式的值，再将文本与表达式进行连接成新的文本存入变量中：
-  $var += expression 
-  [i]arr += expression
-  
-  ##todo
-  ##以下三种文本连接赋值行的行为待补充
-  []arr += []brr
-  []arr += expression
-  $var += []brr
-  ```
-
-- 预处理行
-  ```
-  ##预处理行表示解释器必须在执行脚本之前，预先处理该行，通常以#开头
-  ##预处理行仅在当前上下文中有效；
-
   #label
-  ##普通标签（label），用于标记跳转位置，在同一个wgs中定义重名的标签是未定义行为。
+  ##普通标签（label），为以#开头的标签名，用于标记跳转位置，在同一个wgs中定义重名的标签是未定义行为。
   
   #start
   ##入口点标签（start label），如果定义了入口点标签，则脚本执行从入口点标签处开始，而不是脚本的第一行。
   
   #version "0.1.1"
   ##版本字符串（version string label），如果在脚本中定义了版本字符串（通常在第一行），
-  则检查当前wgs版本与解释器、引擎是否兼容，不兼容为关键错误。版本字符串不能用于跳转。
+  ##则检查当前wgs版本与解释器、引擎是否兼容，不兼容为关键错误。版本字符串不能用于跳转。
   
-  #include "filepath"
-  ##类似于C语言的#include宏，在当前位置插入另一段文本
+  #include "filename"
+  ##引入外部行，类似于C语言的#include宏，在当前位置插入另一个文件的文本。
 
-  #.command 
-  ##预处理指令，脚本载入后执行前，解释器按照整改wgs文件按照从上往下的顺序率先执行的指令，仅支持少量指令。
+  #.command ...
+  ##预处理阶段执行指令，在脚本载入后执行前，解释器将整个wgs文件按照从上往下的顺序率先执行的指令，仅支持少量指令。
 
   ```
+##指令、变量、标签名、常量标识符的命名规则：
+- 除前缀标点符号（ . # $ #. [] ）外，剩余部分由英文字母（ A\~Z a\~z ）、数字（ 0\~9 ）、下划线（ _ ）三种字符构成，且不能以数字开头
+- 全部使用半角字符，不区分大小写。
+
