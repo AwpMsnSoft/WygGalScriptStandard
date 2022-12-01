@@ -21,6 +21,9 @@
     Global
     Local
 
+    Language
+    Locale
+
     Unicode
     UTF8
     UTF16
@@ -38,6 +41,9 @@
     $Result
     $CurrentLine
     $CurrentWgs
+    $Data
+    $Time
+    
     []WindowSize
     []ZoomSize
     []Pair
@@ -57,6 +63,9 @@
     .while
     .wend
     .winapi
+    .if*
+    .else*
+
 
 ## 特殊保留指令
 
