@@ -49,16 +49,16 @@
 |指令名称|参数列表|用途|
 |:-|:-|:-|
 |**DEF指令：**||**定义指令**|
-|.defvar|\$Var / \[]ArrVar|定义变量/数组变量|
-||\$Var / \[]ArrVar = Initialization|定义变量/数组变量，并赋初值|
-|.redef|\$Var / \[]ArrVar|重新定义变量/数组变量|
-||\$Var / \[]ArrVar = Initialization|定义常量/数组常量，并赋初值|
+|.defvar|\$Var / \[]VarArr|定义变量/数组变量|
+||\$Var / \[]VarArr = Initialization|定义变量/数组变量，并赋初值|
+|.redef|\$Var / \[]VarArr|重新定义变量/数组变量|
+||\$Var / \[]VarArr = Initialization|定义常量/数组常量，并赋初值|
 |.defconst|\$CONST / \[]CONSTARR = ConstValue|重新定义变量/数组变量，并赋初值|
-|.undef|\$Var / \[]ArrVar|解除定义|
+|.undef|\$Var / \[]VarArr|解除定义|
 |.clearvar||清除全部变量和数组变量的定义|
 |**DIF指令：**||**定义判断指令**|
-|.ifdef|\$Var / \[]ArrVar / \$CONST / \[]CONSTARR|分支判断：如果定义|
-|.ifndef|\$Var / \[]ArrVar / \$CONST / \[]CONSTARR|分支判断：如果未定义|
+|.ifdef|\$Name / \[]Name|分支判断：如果定义|
+|.ifndef|\$Name / \[]Name|分支判断：如果未定义|
 
 
 ## 流程控制指令（P指令）
