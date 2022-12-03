@@ -70,6 +70,10 @@
 |.chain|WgsFileName|执行下一个wgs|
 |.call|WgsFileName|执行下一个wgs后返回|
 |.flushwgs|无|解释器清除wgs缓存|
+|**PEXIT指令：**||**正常退出**|
+|.exit|无|退出当前wgs|
+|.finish|无|退出所有wgs|
+|.reset|无|复位解释器|
 
 ## 科学计算指令（M指令）
 

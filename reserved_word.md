@@ -6,7 +6,7 @@
     Default
     True
     False
-
+    
     Type
 
     Char
@@ -65,13 +65,10 @@
     .do
     .while
     .wend
-    .breakif
-    .continueif
 
     .if*
     .else*
     
-
     .winapi
     .posix
 
